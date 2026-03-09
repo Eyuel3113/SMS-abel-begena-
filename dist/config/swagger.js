@@ -16,7 +16,12 @@ const options = {
         },
         servers: [
             {
+                url: '/api',
+                description: 'Relative API Path'
+            },
+            {
                 url: 'http://localhost:3000/api',
+                description: 'Local development server'
             },
         ],
         components: {
@@ -50,10 +55,15 @@ const options = {
             }
         },
     },
-    // Use absolute paths to avoid glob issues on Windows
+    // Scan BOTH .ts (local) and .js (Vercel) files using process.cwd()
     apis: [
-        path_1.default.resolve(__dirname, '../modules/**/*.controller.ts'),
-        path_1.default.resolve(__dirname, '../modules/**/*.routes.ts'),
+        path_1.default.join(process.cwd(), 'src/modules/**/*.controller.{ts,js}'),
+        path_1.default.join(process.cwd(), 'src/modules/**/*.routes.{ts,js}'),
+        path_1.default.join(process.cwd(), 'src/index.{ts,js}'),
+        // Also scan dist if it exists
+        path_1.default.join(process.cwd(), 'dist/modules/**/*.controller.js'),
+        path_1.default.join(process.cwd(), 'dist/modules/**/*.routes.js'),
+        path_1.default.join(process.cwd(), 'dist/index.js'),
     ],
 };
 exports.swaggerSpec = (0, swagger_jsdoc_1.default)(options);
