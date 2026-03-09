@@ -10,13 +10,43 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const createTeacherSchema = zod_1.z.object({
     email: zod_1.z.string().email(),
     password: zod_1.z.string().min(6),
-    fullName: zod_1.z.string(),
+    firstName: zod_1.z.string(),
+    lastName: zod_1.z.string(),
+    teacherId: zod_1.z.string(),
+    phone: zod_1.z.string().optional(),
     specialization: zod_1.z.string().optional()
 });
 const updateTeacherSchema = zod_1.z.object({
     isActive: zod_1.z.boolean().optional(),
     specialization: zod_1.z.string().optional()
 });
+/**
+ * @swagger
+ * /users/teachers:
+ *   post:
+ *     summary: Create a new teacher
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [email, password, firstName, lastName, teacherId]
+ *             properties:
+ *               email: { type: string }
+ *               password: { type: string }
+ *               firstName: { type: string }
+ *               lastName: { type: string }
+ *               teacherId: { type: string }
+ *               phone: { type: string }
+ *               specialization: { type: string }
+ *     responses:
+ *       201:
+ *         description: Teacher created
+ */
 const createTeacher = async (req, res) => {
     try {
         const data = createTeacherSchema.parse(req.body);
@@ -36,7 +66,10 @@ const createTeacher = async (req, res) => {
             const teacher = await tx.teacher.create({
                 data: {
                     userId: user.id,
-                    fullName: data.fullName,
+                    teacherId: data.teacherId,
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    phone: data.phone,
                     specialization: data.specialization
                 }
             });
@@ -52,6 +85,18 @@ const createTeacher = async (req, res) => {
     }
 };
 exports.createTeacher = createTeacher;
+/**
+ * @swagger
+ * /users/teachers:
+ *   get:
+ *     summary: List all teachers
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of teachers
+ */
 const listTeachers = async (req, res) => {
     try {
         const teachers = await prisma_1.default.teacher.findMany({
@@ -68,6 +113,34 @@ const listTeachers = async (req, res) => {
     }
 };
 exports.listTeachers = listTeachers;
+/**
+ * @swagger
+ * /users/teachers/{id}:
+ *   patch:
+ *     summary: Update teacher profile or status
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               isActive: { type: boolean }
+ *               specialization: { type: string }
+ *     responses:
+ *       200:
+ *         description: Teacher updated
+ *       404:
+ *         description: Teacher not found
+ */
 const updateTeacher = async (req, res) => {
     const { id } = req.params;
     try {

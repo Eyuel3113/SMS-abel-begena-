@@ -27,10 +27,33 @@ const options = {
                     bearerFormat: 'JWT',
                 },
             },
+            schemas: {
+                Student: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string' },
+                        studentId: { type: 'string' },
+                        fullName: { type: 'string' },
+                        grade: { type: 'string' },
+                        section: { type: 'string' },
+                        shift: { type: 'string', enum: ['MORNING', 'AFTERNOON'] },
+                        enrollmentStatus: { type: 'string' }
+                    }
+                },
+                Login: {
+                    type: 'object',
+                    properties: {
+                        email: { type: 'string' },
+                        password: { type: 'string' }
+                    }
+                }
+            }
         },
     },
+    // Use absolute paths to avoid glob issues on Windows
     apis: [
-        path_1.default.resolve(__dirname, '../modules/**/*.ts'),
+        path_1.default.resolve(__dirname, '../modules/**/*.controller.ts'),
+        path_1.default.resolve(__dirname, '../modules/**/*.routes.ts'),
     ],
 };
 exports.swaggerSpec = (0, swagger_jsdoc_1.default)(options);

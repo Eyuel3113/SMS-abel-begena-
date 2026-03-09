@@ -14,6 +14,13 @@ const protect = async (req, res, next) => {
     if (!token) {
         return res.status(401).json({ status: 'error', message: 'Not authorized, no token' });
     }
+    // Check if token is blacklisted
+    const blacklisted = await prisma_1.default.tokenBlacklist.findUnique({
+        where: { token }
+    });
+    if (blacklisted) {
+        return res.status(401).json({ status: 'error', message: 'Token revoked' });
+    }
     const decoded = (0, auth_1.verifyAccessToken)(token);
     if (!decoded) {
         return res.status(401).json({ status: 'error', message: 'Not authorized, invalid token' });

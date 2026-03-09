@@ -15,6 +15,34 @@ const attendanceSchema = zod_1.z.object({
         status: zod_1.z.nativeEnum(client_1.AttendanceStatus)
     }))
 });
+/**
+ * @swagger
+ * /attendance:
+ *   post:
+ *     summary: Record attendance
+ *     tags: [Attendance]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               scheduleId: { type: string }
+ *               date: { type: string }
+ *               records:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     studentId: { type: string }
+ *                     status: { type: string, enum: [PRESENT, LATE, ABSENT] }
+ *     responses:
+ *       200:
+ *         description: Attendance recorded
+ */
 const recordAttendance = async (req, res) => {
     try {
         const { scheduleId, date, records } = attendanceSchema.parse(req.body);
@@ -68,6 +96,28 @@ const recordAttendance = async (req, res) => {
     }
 };
 exports.recordAttendance = recordAttendance;
+/**
+ * @swagger
+ * /attendance/summary:
+ *   get:
+ *     summary: Get attendance summary/logs
+ *     tags: [Attendance]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: scheduleId
+ *         schema: { type: string }
+ *       - in: query
+ *         name: startDate
+ *         schema: { type: string }
+ *       - in: query
+ *         name: endDate
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Attendance list
+ */
 const getAttendanceSummary = async (req, res) => {
     try {
         const { scheduleId, startDate, endDate } = req.query;

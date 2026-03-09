@@ -20,6 +20,29 @@ const scheduleSchema = zod_1.z.object({
     startTime: zod_1.z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
     endTime: zod_1.z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
 });
+/**
+ * @swagger
+ * /classes:
+ *   post:
+ *     summary: Create a new class
+ *     tags: [Classes]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string }
+ *               grade: { type: string }
+ *               section: { type: string }
+ *               shift: { type: string, enum: [MORNING, AFTERNOON] }
+ *     responses:
+ *       201:
+ *         description: Class created
+ */
 const createClass = async (req, res) => {
     try {
         const data = classSchema.parse(req.body);
@@ -34,6 +57,18 @@ const createClass = async (req, res) => {
     }
 };
 exports.createClass = createClass;
+/**
+ * @swagger
+ * /classes:
+ *   get:
+ *     summary: List all classes
+ *     tags: [Classes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of classes
+ */
 const listClasses = async (req, res) => {
     try {
         const classes = await prisma_1.default.class.findMany({
@@ -46,6 +81,30 @@ const listClasses = async (req, res) => {
     }
 };
 exports.listClasses = listClasses;
+/**
+ * @swagger
+ * /schedules:
+ *   post:
+ *     summary: Create a new schedule
+ *     tags: [Classes]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               classId: { type: string }
+ *               teacherId: { type: string }
+ *               dayOfWeek: { type: integer, minimum: 1, maximum: 7 }
+ *               startTime: { type: string, example: "08:00" }
+ *               endTime: { type: string, example: "09:00" }
+ *     responses:
+ *       201:
+ *         description: Schedule created
+ */
 const createSchedule = async (req, res) => {
     try {
         const data = scheduleSchema.parse(req.body);
@@ -110,6 +169,25 @@ const createSchedule = async (req, res) => {
     }
 };
 exports.createSchedule = createSchedule;
+/**
+ * @swagger
+ * /schedules:
+ *   get:
+ *     summary: List schedules with optional filters
+ *     tags: [Classes]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: teacherId
+ *         schema: { type: string }
+ *       - in: query
+ *         name: classId
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: List of schedules
+ */
 const listSchedules = async (req, res) => {
     try {
         const { teacherId, classId } = req.query;

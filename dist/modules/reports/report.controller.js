@@ -6,6 +6,33 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.generatePaymentReport = exports.generateAttendanceReport = void 0;
 const prisma_1 = __importDefault(require("../../utils/prisma"));
 const pdfkit_1 = __importDefault(require("pdfkit"));
+/**
+ * @swagger
+ * /reports/attendance:
+ *   get:
+ *     summary: Generate attendance PDF report
+ *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: startDate
+ *         required: true
+ *         schema: { type: string }
+ *       - in: query
+ *         name: endDate
+ *         required: true
+ *         schema: { type: string }
+ *       - in: query
+ *         name: scheduleId
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: PDF file
+ *         content:
+ *           application/pdf:
+ *             schema: { type: string, format: binary }
+ */
 const generateAttendanceReport = async (req, res) => {
     try {
         const { startDate, endDate, scheduleId } = req.query;
@@ -41,6 +68,30 @@ const generateAttendanceReport = async (req, res) => {
     }
 };
 exports.generateAttendanceReport = generateAttendanceReport;
+/**
+ * @swagger
+ * /reports/payments:
+ *   get:
+ *     summary: Generate payment PDF report
+ *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: month
+ *         required: true
+ *         schema: { type: integer }
+ *       - in: query
+ *         name: year
+ *         required: true
+ *         schema: { type: integer }
+ *     responses:
+ *       200:
+ *         description: PDF file
+ *         content:
+ *           application/pdf:
+ *             schema: { type: string, format: binary }
+ */
 const generatePaymentReport = async (req, res) => {
     try {
         const { month, year } = req.query;
