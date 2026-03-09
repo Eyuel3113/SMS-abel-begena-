@@ -11,7 +11,12 @@ const options = {
         },
         servers: [
             {
+                url: '/api',
+                description: 'Relative API Path'
+            },
+            {
                 url: 'http://localhost:3000/api',
+                description: 'Local development server'
             },
         ],
         components: {
@@ -45,10 +50,11 @@ const options = {
             }
         },
     },
-    // Use absolute paths to avoid glob issues on Windows
+    // Scan BOTH .ts (local) and .js (Vercel) files
     apis: [
-        path.resolve(__dirname, '../modules/**/*.controller.ts'),
-        path.resolve(__dirname, '../modules/**/*.routes.ts'),
+        path.resolve(__dirname, '../modules/**/*.controller.{ts,js}'),
+        path.resolve(__dirname, '../modules/**/*.routes.{ts,js}'),
+        path.resolve(__dirname, '../index.{ts,js}'),
     ],
 };
 
