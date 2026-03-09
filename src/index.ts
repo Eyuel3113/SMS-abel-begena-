@@ -19,9 +19,25 @@ const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagge
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { customCssUrl: CSS_URL }));
 
 // Security Middlewares
-app.use(helmet());
+// Security Middlewares
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            "img-src": ["'self'", "data:", "https://validator.swagger.io"],
+            "script-src": ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+            "style-src": ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+        },
+    },
+}));
 app.use(cors());
 app.use(express.json());
+
+// Swagger JSON debug route
+app.get('/api-docs.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+});
 app.use(express.urlencoded({ extended: true }));
 
 // Logging

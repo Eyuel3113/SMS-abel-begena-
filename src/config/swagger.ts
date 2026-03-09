@@ -50,11 +50,15 @@ const options = {
             }
         },
     },
-    // Scan BOTH .ts (local) and .js (Vercel) files
+    // Scan BOTH .ts (local) and .js (Vercel) files using process.cwd()
     apis: [
-        path.resolve(__dirname, '../modules/**/*.controller.{ts,js}'),
-        path.resolve(__dirname, '../modules/**/*.routes.{ts,js}'),
-        path.resolve(__dirname, '../index.{ts,js}'),
+        path.join(process.cwd(), 'src/modules/**/*.controller.{ts,js}'),
+        path.join(process.cwd(), 'src/modules/**/*.routes.{ts,js}'),
+        path.join(process.cwd(), 'src/index.{ts,js}'),
+        // Also scan dist if it exists
+        path.join(process.cwd(), 'dist/modules/**/*.controller.js'),
+        path.join(process.cwd(), 'dist/modules/**/*.routes.js'),
+        path.join(process.cwd(), 'dist/index.js'),
     ],
 };
 
