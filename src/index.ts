@@ -35,7 +35,7 @@ app.use(cors({
         const allowedOrigins = [
             'http://localhost:5173',
             'http://localhost:3000',
-            // Add your production frontend URL here when you have it!
+            'https://abel-begena-gray.vercel.app',
         ];
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
