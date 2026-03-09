@@ -1,0 +1,155 @@
+// This file is used to generate Prisma models
+// Database connection is configured in .env
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+}
+
+enum Shift {
+  MORNING
+  AFTERNOON
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+}
+
+enum PaymentStatus {
+  PAID
+  PARTIALLY_PAID
+  UNPAID
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  role      Role      @default(TEACHER)
+  isActive  Boolean   @default(true)
+  teacher   Teacher?
+  recordedAttendance Attendance[] @relation("Recorder")
+  recordedPayments   Payment[]    @relation("PaymentRecorder")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("users")
+}
+
+model Student {
+  id               String          @id @default(uuid())
+  studentId        String          @unique // School specific ID
+  fullName         String
+  grade            String
+  section          String
+  shift            Shift
+  enrollmentStatus String          @default("ACTIVE")
+  attendances      Attendance[]
+  payments         Payment[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  deletedAt        DateTime?
+
+  @@map("students")
+}
+
+model Teacher {
+  id             String     @id @default(uuid())
+  teacherId      String     @unique
+  userId         String     @unique
+  user           User       @relation(fields: [userId], references: [id])
+  firstName      String
+  lastName       String
+  phone          String?
+  specialization String?
+  hireDate       DateTime   @default(now())
+  schedules      Schedule[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+deletedAt      DateTime?                                                                            
+
+  @@map("teachers")
+}
+
+model Class {
+  id        String     @id @default(uuid())
+  name      String
+  grade     String
+  section   String
+  shift     Shift
+  schedules Schedule[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
+
+  @@map("classes")
+}
+
+model Schedule {
+  id          String       @id @default(uuid())
+  classId     String
+  class       Class        @relation(fields: [classId], references: [id])
+  teacherId   String
+  teacher     Teacher      @relation(fields: [teacherId], references: [id])
+  dayOfWeek   Int          // 1-7 (Monday-Sunday)
+  startTime   String       // HH:mm
+  endTime     String       // HH:mm
+  attendances Attendance[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+
+  @@map("schedules")
+}
+
+model Attendance {
+  id          String           @id @default(uuid())
+  studentId   String
+  student     Student          @relation(fields: [studentId], references: [id])
+  scheduleId  String
+  schedule    Schedule         @relation(fields: [scheduleId], references: [id])
+  status      AttendanceStatus
+  recordedBy  String
+  recorder    User             @relation("Recorder", fields: [recordedBy], references: [id])
+  date        DateTime         // The actual day of attendance
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([studentId, scheduleId, date])
+  @@map("attendance")
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  studentId   String
+  student     Student       @relation(fields: [studentId], references: [id])
+  amount      Float
+  status      PaymentStatus
+  recordedBy  String
+  recorder    User          @relation("PaymentRecorder", fields: [recordedBy], references: [id])
+  date        DateTime
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+model TokenBlacklist {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("token_blacklist")
+}
