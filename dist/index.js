@@ -63,9 +63,11 @@ app.get('/health', (req, res) => {
 // Global Error Handler
 app.use(error_1.errorHandler);
 // Server Start
-app.listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
-    console.log(`[server]: API Docs: http://localhost:${port}/api-docs`);
-});
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`[server]: Server is running at http://localhost:${port}`);
+        console.log(`[server]: API Docs: http://localhost:${port}/api-docs`);
+    });
+}
 exports.default = app;
 //# sourceMappingURL=index.js.map

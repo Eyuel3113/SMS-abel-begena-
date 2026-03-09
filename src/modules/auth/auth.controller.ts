@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../../utils/prisma';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { generateAccessToken, generateRefreshToken, verifyAccessToken } from '../../utils/auth';
 
 const loginSchema = z.object({

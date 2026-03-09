@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyRefreshToken = exports.verifyAccessToken = exports.generateRefreshToken = exports.generateAccessToken = exports.comparePassword = exports.hashPassword = void 0;
-const bcrypt_1 = __importDefault(require("bcrypt"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
@@ -13,11 +13,11 @@ const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'refresh_secret';
 const ACCESS_EXPIRATION = process.env.JWT_ACCESS_EXPIRATION || '15m';
 const REFRESH_EXPIRATION = process.env.JWT_REFRESH_EXPIRATION || '7d';
 const hashPassword = async (password) => {
-    return await bcrypt_1.default.hash(password, 10);
+    return await bcryptjs_1.default.hash(password, 10);
 };
 exports.hashPassword = hashPassword;
 const comparePassword = async (password, hashed) => {
-    return await bcrypt_1.default.compare(password, hashed);
+    return await bcryptjs_1.default.compare(password, hashed);
 };
 exports.comparePassword = comparePassword;
 const generateAccessToken = (payload) => {

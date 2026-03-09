@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateTeacher = exports.listTeachers = exports.createTeacher = void 0;
 const zod_1 = require("zod");
 const prisma_1 = __importDefault(require("../../utils/prisma"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const createTeacherSchema = zod_1.z.object({
     email: zod_1.z.string().email(),
     password: zod_1.z.string().min(6),
@@ -54,7 +54,7 @@ const createTeacher = async (req, res) => {
         if (existing) {
             return res.status(400).json({ status: 'error', message: 'Email already exists' });
         }
-        const hashedPassword = await bcrypt_1.default.hash(data.password, 10);
+        const hashedPassword = await bcryptjs_1.default.hash(data.password, 10);
         const result = await prisma_1.default.$transaction(async (tx) => {
             const user = await tx.user.create({
                 data: {

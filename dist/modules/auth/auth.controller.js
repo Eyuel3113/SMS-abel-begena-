@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.logout = exports.refreshToken = exports.login = void 0;
 const zod_1 = require("zod");
 const prisma_1 = __importDefault(require("../../utils/prisma"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const auth_1 = require("../../utils/auth");
 const loginSchema = zod_1.z.object({
     email: zod_1.z.string().email(),
@@ -38,7 +38,7 @@ const login = async (req, res) => {
     try {
         const { email, password } = loginSchema.parse(req.body);
         const user = await prisma_1.default.user.findUnique({ where: { email } });
-        if (!user || !(await bcrypt_1.default.compare(password, user.password))) {
+        if (!user || !(await bcryptjs_1.default.compare(password, user.password))) {
             return res.status(401).json({ status: 'error', message: 'Invalid credentials' });
         }
         const accessToken = (0, auth_1.generateAccessToken)({ id: user.id, role: user.role });
