@@ -130,7 +130,7 @@ const getPaymentReports = async (req, res) => {
         const payments = await prisma_1.default.payment.findMany({
             where,
             include: {
-                student: { select: { fullName: true, studentId: true, grade: true } }
+                student: { select: { firstName: true, lastName: true, studentId: true, grade: true } }
             },
             orderBy: { date: 'desc' }
         });

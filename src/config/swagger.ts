@@ -33,10 +33,13 @@ const options = {
                     properties: {
                         id: { type: 'string' },
                         studentId: { type: 'string' },
-                        fullName: { type: 'string' },
+                        firstName: { type: 'string' },
+                        lastName: { type: 'string' },
                         grade: { type: 'string' },
                         section: { type: 'string' },
-                        shift: { type: 'string', enum: ['MORNING', 'AFTERNOON'] },
+                        dateOfBirth: { type: 'string', format: 'date' },
+                        phone: { type: 'string' },
+                        address: { type: 'string' },
                         enrollmentStatus: { type: 'string' }
                     }
                 },
@@ -50,15 +53,12 @@ const options = {
             }
         },
     },
-    // Scan BOTH .ts (local) and .js (Vercel) files using process.cwd()
+    // SCAN everything in src and dist to be 100% sure
     apis: [
-        path.join(process.cwd(), 'src/modules/**/*.controller.{ts,js}'),
-        path.join(process.cwd(), 'src/modules/**/*.routes.{ts,js}'),
-        path.join(process.cwd(), 'src/index.{ts,js}'),
-        // Also scan dist if it exists
-        path.join(process.cwd(), 'dist/modules/**/*.controller.js'),
-        path.join(process.cwd(), 'dist/modules/**/*.routes.js'),
-        path.join(process.cwd(), 'dist/index.js'),
+        './src/**/*.ts',
+        './dist/**/*.js',
+        './src/index.ts',
+        './dist/index.js'
     ],
 };
 

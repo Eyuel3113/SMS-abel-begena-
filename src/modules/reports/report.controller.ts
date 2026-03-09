@@ -42,7 +42,7 @@ export const generateAttendanceReport = async (req: Request, res: Response) => {
                 }
             },
             include: {
-                student: true,
+                student: { select: { firstName: true, lastName: true, studentId: true } },
                 schedule: { include: { class: true } }
             },
             orderBy: { date: 'asc' }
@@ -59,7 +59,7 @@ export const generateAttendanceReport = async (req: Request, res: Response) => {
         doc.moveDown();
 
         attendance.forEach((record: any) => {
-            doc.text(`${record.date.toISOString().split('T')[0]} - ${record.student.fullName} (${record.student.studentId}): ${record.status}`);
+            doc.text(`${record.date.toISOString().split('T')[0]} - ${record.student.firstName} ${record.student.lastName} (${record.student.studentId}): ${record.status}`);
         });
 
         doc.end();
@@ -120,7 +120,7 @@ export const generatePaymentReport = async (req: Request, res: Response) => {
 
         let total = 0;
         payments.forEach((p: any) => {
-            doc.text(`${p.date.toISOString().split('T')[0]} - ${p.student.fullName}: ${p.amount} ETB (${p.status})`);
+            doc.text(`${p.date.toISOString().split('T')[0]} - ${p.student.firstName} ${p.student.lastName}: ${p.amount} ETB (${p.status})`);
             total += p.amount;
         });
 

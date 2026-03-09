@@ -8,7 +8,9 @@
                 "includeFiles": [
                     "node_modules/.prisma/client/**",
                     "node_modules/@prisma/client/**",
-                    "node_modules/swagger-ui-dist/**"
+                    "node_modules/swagger-ui-dist/**",
+                    "src/**/*.ts",
+                    "dist/**/*.js"
                 ]
             }
         }

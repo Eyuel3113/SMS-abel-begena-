@@ -12,10 +12,50 @@ import { Request, Response } from 'express';
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Student'
+ *             type: object
+ *             required:
+ *               - studentId
+ *               - firstName
+ *               - lastName
+ *               - grade
+ *               - section
+ *             properties:
+ *               studentId:
+ *                 type: string
+ *                 description: Unique student identifier (required)
+ *               firstName:
+ *                 type: string
+ *                 description: Student's first name (required)
+ *               lastName:
+ *                 type: string
+ *                 description: Student's last name (required)
+ *               grade:
+ *                 type: string
+ *                 description: Student's grade level (required)
+ *               section:
+ *                 type: string
+ *                 description: Student's section (required)
+ *               dateOfBirth:
+ *                 type: string
+ *                 format: date
+ *                 nullable: true
+ *                 description: Date of birth (optional, format YYYY-MM-DD)
+ *               phone:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Phone number (optional)
+ *               address:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Home address (optional)
+ *               enrollmentStatus:
+ *                 type: string
+ *                 description: Enrollment status (optional, defaults to ACTIVE)
  *     responses:
  *       201:
- *         description: Student created
+ *         description: Student created successfully
+ *       400:
+ *         description: Validation error or Student ID already exists
  */
 export declare const createStudent: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 /**

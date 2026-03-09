@@ -36,7 +36,7 @@ app.use((0, cors_1.default)({
         const allowedOrigins = [
             'http://localhost:5173',
             'http://localhost:3000',
-            // Add your production frontend URL here when you have it!
+            'https://abel-begena-gray.vercel.app',
         ];
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
@@ -86,12 +86,18 @@ app.use('/api/attendance', attendance_routes_1.default);
 app.use('/api/payments', payment_routes_1.default);
 app.use('/api/reports', report_routes_1.default);
 // Health Check
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: API Health Check
+ *     tags: [Utility]
+ *     responses:
+ *       200:
+ *         description: API is running
+ */
 app.get('/health', (req, res) => {
-    res.status(200).json({
-        status: 'success',
-        message: 'Smart School Management System API is healthy',
-        timestamp: new Date().toISOString()
-    });
+    res.status(200).json({ status: 'success', message: 'API is running' });
 });
 // Global Error Handler
 app.use(error_1.errorHandler);

@@ -50,11 +50,15 @@ model User {
 
 model Student {
   id               String          @id @default(uuid())
-  studentId        String          @unique // School specific ID
-  fullName         String
+  studentId        String          @unique // School specific ID / Fingerprint ID
+  firstName        String
+  lastName         String
   grade            String
   section          String
-  shift            Shift
+  dateOfBirth      DateTime?
+  enrollmentDate   DateTime        @default(now())
+  phone            String?
+  address          String?
   enrollmentStatus String          @default("ACTIVE")
   attendances      Attendance[]
   payments         Payment[]

@@ -1,14 +1,16 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../../utils/prisma';
-import { Shift } from '@prisma/client';
 
 const studentSchema = z.object({
     studentId: z.string(),
-    fullName: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
     grade: z.string(),
     section: z.string(),
-    shift: z.nativeEnum(Shift),
+    dateOfBirth: z.string().optional().transform(v => v ? new Date(v) : undefined),
+    phone: z.string().optional(),
+    address: z.string().optional(),
     enrollmentStatus: z.string().optional()
 });
 
@@ -25,11 +27,54 @@ const studentSchema = z.object({
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Student'
+ *             type: object
+ *             required:
+ *               - studentId
+ *               - firstName
+ *               - lastName
+ *               - grade
+ *               - section
+ *             properties:
+ *               studentId:
+ *                 type: string
+ *                 description: Unique student identifier (required)
+ *               firstName:
+ *                 type: string
+ *                 description: Student's first name (required)
+ *               lastName:
+ *                 type: string
+ *                 description: Student's last name (required)
+ *               grade:
+ *                 type: string
+ *                 description: Student's grade level (required)
+ *               section:
+ *                 type: string
+ *                 description: Student's section (required)
+ *               dateOfBirth:
+ *                 type: string
+ *                 format: date
+ *                 nullable: true
+ *                 description: Date of birth (optional, format YYYY-MM-DD)
+ *               phone:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Phone number (optional)
+ *               address:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Home address (optional)
+ *               enrollmentStatus:
+ *                 type: string
+ *                 description: Enrollment status (optional, defaults to ACTIVE)
  *     responses:
  *       201:
- *         description: Student created
+ *         description: Student created successfully
+ *       400:
+ *         description: Validation error or Student ID already exists
  */
+
+
+
 export const createStudent = async (req: Request, res: Response) => {
     try {
         const data = studentSchema.parse(req.body);
@@ -39,7 +84,12 @@ export const createStudent = async (req: Request, res: Response) => {
             return res.status(400).json({ status: 'error', message: 'Student ID already exists' });
         }
 
-        const student = await prisma.student.create({ data });
+        const student = await prisma.student.create({
+            data: {
+                ...data,
+                dateOfBirth: data.dateOfBirth
+            }
+        });
 
         res.status(201).json({ status: 'success', data: student });
     } catch (error: any) {
@@ -85,10 +135,10 @@ export const listStudents = async (req: Request, res: Response) => {
             deletedAt: null,
             ...(grade && { grade: String(grade) }),
             ...(section && { section: String(section) }),
-            ...(shift && { shift: shift as Shift }),
             ...(search && {
                 OR: [
-                    { fullName: { contains: String(search), mode: 'insensitive' } },
+                    { firstName: { contains: String(search), mode: 'insensitive' } },
+                    { lastName: { contains: String(search), mode: 'insensitive' } },
                     { studentId: { contains: String(search), mode: 'insensitive' } }
                 ]
             })

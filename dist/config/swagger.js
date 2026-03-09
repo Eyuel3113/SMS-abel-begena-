@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.swaggerSpec = void 0;
 const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
-const path_1 = __importDefault(require("path"));
 const options = {
     definition: {
         openapi: '3.0.0',
@@ -38,10 +37,13 @@ const options = {
                     properties: {
                         id: { type: 'string' },
                         studentId: { type: 'string' },
-                        fullName: { type: 'string' },
+                        firstName: { type: 'string' },
+                        lastName: { type: 'string' },
                         grade: { type: 'string' },
                         section: { type: 'string' },
-                        shift: { type: 'string', enum: ['MORNING', 'AFTERNOON'] },
+                        dateOfBirth: { type: 'string', format: 'date' },
+                        phone: { type: 'string' },
+                        address: { type: 'string' },
                         enrollmentStatus: { type: 'string' }
                     }
                 },
@@ -55,15 +57,12 @@ const options = {
             }
         },
     },
-    // Scan BOTH .ts (local) and .js (Vercel) files using process.cwd()
+    // SCAN everything in src and dist to be 100% sure
     apis: [
-        path_1.default.join(process.cwd(), 'src/modules/**/*.controller.{ts,js}'),
-        path_1.default.join(process.cwd(), 'src/modules/**/*.routes.{ts,js}'),
-        path_1.default.join(process.cwd(), 'src/index.{ts,js}'),
-        // Also scan dist if it exists
-        path_1.default.join(process.cwd(), 'dist/modules/**/*.controller.js'),
-        path_1.default.join(process.cwd(), 'dist/modules/**/*.routes.js'),
-        path_1.default.join(process.cwd(), 'dist/index.js'),
+        './src/**/*.ts',
+        './dist/**/*.js',
+        './src/index.ts',
+        './dist/index.js'
     ],
 };
 exports.swaggerSpec = (0, swagger_jsdoc_1.default)(options);

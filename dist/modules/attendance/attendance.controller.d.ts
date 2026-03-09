@@ -52,3 +52,31 @@ export declare const recordAttendance: (req: AuthRequest, res: Response) => Prom
  *         description: Attendance list
  */
 export declare const getAttendanceSummary: (req: Request, res: Response) => Promise<void>;
+/**
+ * @swagger
+ * /attendance/check-in:
+ *   post:
+ *     summary: Fingerprint check-in for students
+ *     description: Validates payment status and schedule before recording attendance
+ *     tags: [Attendance]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - studentId
+ *             properties:
+ *               studentId:
+ *                 type: string
+ *                 description: The unique student ID (from fingerprint reader) (required)
+ *     responses:
+ *       200:
+ *         description: Check-in successful - student is present
+ *       403:
+ *         description: Access denied - unpaid fees or not scheduled
+ *       404:
+ *         description: Student not found
+ */
+export declare const checkIn: (req: Request, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;

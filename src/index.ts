@@ -90,12 +90,18 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/reports', reportRoutes);
 
 // Health Check
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: API Health Check
+ *     tags: [Utility]
+ *     responses:
+ *       200:
+ *         description: API is running
+ */
 app.get('/health', (req: Request, res: Response) => {
-    res.status(200).json({
-        status: 'success',
-        message: 'Smart School Management System API is healthy',
-        timestamp: new Date().toISOString()
-    });
+    res.status(200).json({ status: 'success', message: 'API is running' });
 });
 
 // Global Error Handler

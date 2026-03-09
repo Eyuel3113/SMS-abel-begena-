@@ -6,13 +6,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteStudent = exports.updateStudent = exports.getStudent = exports.listStudents = exports.createStudent = void 0;
 const zod_1 = require("zod");
 const prisma_1 = __importDefault(require("../../utils/prisma"));
-const client_1 = require("@prisma/client");
 const studentSchema = zod_1.z.object({
     studentId: zod_1.z.string(),
-    fullName: zod_1.z.string(),
+    firstName: zod_1.z.string(),
+    lastName: zod_1.z.string(),
     grade: zod_1.z.string(),
     section: zod_1.z.string(),
-    shift: zod_1.z.nativeEnum(client_1.Shift),
+    dateOfBirth: zod_1.z.string().optional().transform(v => v ? new Date(v) : undefined),
+    phone: zod_1.z.string().optional(),
+    address: zod_1.z.string().optional(),
     enrollmentStatus: zod_1.z.string().optional()
 });
 /**
@@ -28,10 +30,50 @@ const studentSchema = zod_1.z.object({
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Student'
+ *             type: object
+ *             required:
+ *               - studentId
+ *               - firstName
+ *               - lastName
+ *               - grade
+ *               - section
+ *             properties:
+ *               studentId:
+ *                 type: string
+ *                 description: Unique student identifier (required)
+ *               firstName:
+ *                 type: string
+ *                 description: Student's first name (required)
+ *               lastName:
+ *                 type: string
+ *                 description: Student's last name (required)
+ *               grade:
+ *                 type: string
+ *                 description: Student's grade level (required)
+ *               section:
+ *                 type: string
+ *                 description: Student's section (required)
+ *               dateOfBirth:
+ *                 type: string
+ *                 format: date
+ *                 nullable: true
+ *                 description: Date of birth (optional, format YYYY-MM-DD)
+ *               phone:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Phone number (optional)
+ *               address:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Home address (optional)
+ *               enrollmentStatus:
+ *                 type: string
+ *                 description: Enrollment status (optional, defaults to ACTIVE)
  *     responses:
  *       201:
- *         description: Student created
+ *         description: Student created successfully
+ *       400:
+ *         description: Validation error or Student ID already exists
  */
 const createStudent = async (req, res) => {
     try {
@@ -40,7 +82,12 @@ const createStudent = async (req, res) => {
         if (existing) {
             return res.status(400).json({ status: 'error', message: 'Student ID already exists' });
         }
-        const student = await prisma_1.default.student.create({ data });
+        const student = await prisma_1.default.student.create({
+            data: {
+                ...data,
+                dateOfBirth: data.dateOfBirth
+            }
+        });
         res.status(201).json({ status: 'success', data: student });
     }
     catch (error) {
@@ -85,10 +132,10 @@ const listStudents = async (req, res) => {
             deletedAt: null,
             ...(grade && { grade: String(grade) }),
             ...(section && { section: String(section) }),
-            ...(shift && { shift: shift }),
             ...(search && {
                 OR: [
-                    { fullName: { contains: String(search), mode: 'insensitive' } },
+                    { firstName: { contains: String(search), mode: 'insensitive' } },
+                    { lastName: { contains: String(search), mode: 'insensitive' } },
                     { studentId: { contains: String(search), mode: 'insensitive' } }
                 ]
             })
