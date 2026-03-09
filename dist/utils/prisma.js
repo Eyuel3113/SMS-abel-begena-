@@ -9,8 +9,11 @@ const pg_1 = __importDefault(require("pg"));
 const dotenv_1 = __importDefault(require("dotenv"));
 // Ensure env vars are loaded
 dotenv_1.default.config();
-const connectionString = `${process.env.DATABASE_URL}`;
-const pool = new pg_1.default.Pool({ connectionString });
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+    console.error('DATABASE_URL is not set! Prisma will not work correctly.');
+}
+const pool = new pg_1.default.Pool({ connectionString: connectionString || undefined });
 const adapter = new adapter_pg_1.PrismaPg(pool);
 const prisma = new client_1.PrismaClient({ adapter });
 exports.default = prisma;
