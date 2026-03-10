@@ -168,6 +168,155 @@ export const listStudents = async (req: Request, res: Response) => {
 
 /**
  * @swagger
+ * /students/active:
+ *   get:
+ *     summary: List active students only
+ *     description: Returns a paginated list of students whose enrollment status is ACTIVE. Supports search by name/studentId and filtering by grade and section.
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of students per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by first name, last name, or student ID (case-insensitive)
+ *       - in: query
+ *         name: grade
+ *         schema:
+ *           type: string
+ *         description: Filter by grade level
+ *       - in: query
+ *         name: section
+ *         schema:
+ *           type: string
+ *         description: Filter by section
+ *     responses:
+ *       200:
+ *         description: Paginated list of active students
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     students:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             description: Student UUID
+ *                           studentId:
+ *                             type: string
+ *                             description: School-specific student ID
+ *                           firstName:
+ *                             type: string
+ *                           lastName:
+ *                             type: string
+ *                           grade:
+ *                             type: string
+ *                           section:
+ *                             type: string
+ *                           dateOfBirth:
+ *                             type: string
+ *                             format: date-time
+ *                             nullable: true
+ *                           phone:
+ *                             type: string
+ *                             nullable: true
+ *                           address:
+ *                             type: string
+ *                             nullable: true
+ *                           enrollmentStatus:
+ *                             type: string
+ *                             example: ACTIVE
+ *                           enrollmentDate:
+ *                             type: string
+ *                             format: date-time
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                           description: Total number of active students matching filters
+ *                         page:
+ *                           type: integer
+ *                         limit:
+ *                           type: integer
+ *                         totalPages:
+ *                           type: integer
+ *       500:
+ *         description: Internal server error
+ */
+export const listActiveStudents = async (req: Request, res: Response) => {
+    try {
+        const { page = 1, limit = 10, search, grade, section } = req.query;
+        const skip = (Number(page) - 1) * Number(limit);
+        const take = Number(limit);
+
+        const where: any = {
+            deletedAt: null,
+            enrollmentStatus: 'ACTIVE',
+            ...(grade && { grade: String(grade) }),
+            ...(section && { section: String(section) }),
+            ...(search && {
+                OR: [
+                    { firstName: { contains: String(search), mode: 'insensitive' } },
+                    { lastName: { contains: String(search), mode: 'insensitive' } },
+                    { studentId: { contains: String(search), mode: 'insensitive' } }
+                ]
+            })
+        };
+
+        const [students, total] = await Promise.all([
+            prisma.student.findMany({ where, skip, take, orderBy: { createdAt: 'desc' } }),
+            prisma.student.count({ where })
+        ]);
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                students,
+                pagination: {
+                    total,
+                    page: Number(page),
+                    limit: Number(limit),
+                    totalPages: Math.ceil(total / take)
+                }
+            }
+        });
+    } catch (error: any) {
+        res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+/**
+ * @swagger
  * /students/{id}:
  *   get:
  *     summary: Get student by ID
@@ -267,6 +416,63 @@ export const deleteStudent = async (req: Request, res: Response) => {
             data: { deletedAt: new Date() }
         });
         res.status(204).send();
+    } catch (error: any) {
+        res.status(500).json({ status: 'error', message: error.message });
+    }
+};
+
+/**
+ * @swagger
+ * /students/{id}/toggle-status:
+ *   patch:
+ *     summary: Toggle student active/inactive status
+ *     tags: [Students]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: Student UUID
+ *     responses:
+ *       200:
+ *         description: Student status toggled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     enrollmentStatus:
+ *                       type: string
+ *                       example: INACTIVE
+ *       404:
+ *         description: Student not found
+ */
+export const toggleStudentStatus = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+        const student = await prisma.student.findUnique({ where: { id: String(id) } });
+        if (!student || student.deletedAt) {
+            return res.status(404).json({ status: 'error', message: 'Student not found' });
+        }
+
+        const newStatus = student.enrollmentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+
+        const updated = await prisma.student.update({
+            where: { id: String(id) },
+            data: { enrollmentStatus: newStatus }
+        });
+
+        res.status(200).json({ status: 'success', data: updated });
     } catch (error: any) {
         res.status(500).json({ status: 'error', message: error.message });
     }
